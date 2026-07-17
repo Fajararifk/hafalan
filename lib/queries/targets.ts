@@ -21,6 +21,14 @@ export async function canCreateNewTarget(userId: string): Promise<boolean> {
   return !latest || latest.status === "HAFAL";
 }
 
+export async function getHafalTargets(userId: string) {
+  return prisma.memorizationTarget.findMany({
+    where: { userId, status: "HAFAL" },
+    orderBy: { hafalAt: "desc" },
+    include: { surah: true },
+  });
+}
+
 export async function getTargetWithAyat(targetId: string, userId: string) {
   const target = await prisma.memorizationTarget.findFirst({
     where: { id: targetId, userId },

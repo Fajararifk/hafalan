@@ -35,14 +35,6 @@ export async function getOverallProgress(userId: string) {
   return { hafal, total, percent: total ? Math.round((hafal / total) * 100) : 0 };
 }
 
-export async function getMemorizedAyat(userId: string) {
-  return prisma.ayah.findMany({
-    where: { progress: { some: { userId, status: "HAFAL" } } },
-    include: { surah: true },
-    orderBy: [{ surahNumber: "asc" }, { ayahNumber: "asc" }],
-  });
-}
-
 export async function getStreak(userId: string): Promise<number> {
   const activities = await prisma.userDailyActivity.findMany({
     where: { userId },
