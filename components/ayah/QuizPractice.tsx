@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { PencilLine, Loader2 } from "lucide-react";
 import { submitQuizAttempt } from "@/lib/actions/quiz";
 import type { CompareResult, DiffOp } from "@/lib/quran/diff";
 import type { CompareMode } from "@/lib/quran/normalize";
@@ -42,6 +43,12 @@ function DiffWord({ op }: { op: DiffOp }) {
   );
 }
 
+function scoreRingColor(score: number) {
+  if (score >= 95) return "text-emerald-500";
+  if (score >= 70) return "text-amber-500";
+  return "text-red-500";
+}
+
 export function QuizPractice({ ayahId }: { ayahId: string }) {
   const [mode, setMode] = useState<CompareMode>("lenient");
   const [input, setInput] = useState("");
@@ -57,8 +64,8 @@ export function QuizPractice({ ayahId }: { ayahId: string }) {
   }
 
   return (
-    <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
-      <form onSubmit={handleSubmit} className="space-y-2">
+    <div className="mt-4 border-t border-neutral-200/70 pt-4 dark:border-neutral-800">
+      <form onSubmit={handleSubmit} className="space-y-2.5">
         <textarea
           dir="rtl"
           lang="ar"
@@ -66,32 +73,47 @@ export function QuizPractice({ ayahId }: { ayahId: string }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ketik ulang ayat ini dari hafalan..."
           rows={2}
-          className="font-arabic w-full rounded-md border border-neutral-300 p-2 text-xl focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900"
+          className="font-arabic w-full rounded-xl border border-neutral-300 bg-white/60 p-3 text-xl outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-neutral-700 dark:bg-neutral-900"
         />
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-neutral-500">
-            <input
-              type="checkbox"
-              checked={mode === "strict"}
-              onChange={(e) => setMode(e.target.checked ? "strict" : "lenient")}
-            />
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-500">
+            <span
+              onClick={() => setMode(mode === "strict" ? "lenient" : "strict")}
+              className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                mode === "strict" ? "bg-emerald-600" : "bg-neutral-300 dark:bg-neutral-700"
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                  mode === "strict" ? "translate-x-[18px]" : "translate-x-1"
+                }`}
+              />
+            </span>
             Mode ketat (harakat harus tepat)
           </label>
           <button
             type="submit"
             disabled={isPending || input.trim().length === 0}
-            className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-neutral-700 active:scale-95 disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
           >
+            {isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <PencilLine className="h-3.5 w-3.5" />
+            )}
             {isPending ? "Memeriksa..." : "Cek Hafalan"}
           </button>
         </div>
       </form>
 
       {result && (
-        <div className="mt-3 rounded-md bg-neutral-50 p-3 dark:bg-neutral-900">
-          <p className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            Skor: {result.scorePercent}%
-          </p>
+        <div className="animate-slide-up mt-3 rounded-xl bg-neutral-50 p-3.5 dark:bg-neutral-900/70">
+          <div className="mb-2.5 flex items-center gap-2">
+            <span className={`text-lg font-bold ${scoreRingColor(result.scorePercent)}`}>
+              {result.scorePercent}%
+            </span>
+            <span className="text-xs text-neutral-500">skor kecocokan</span>
+          </div>
           <p dir="rtl" lang="ar" className="font-arabic text-xl leading-loose">
             {result.ops.map((op, i) => (
               <DiffWord key={i} op={op} />

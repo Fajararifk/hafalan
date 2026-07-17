@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 import { requireUserId } from "@/lib/session";
 import { getTargetWithAyat } from "@/lib/queries/targets";
 import { AyahCard } from "@/components/ayah/AyahCard";
@@ -19,17 +20,18 @@ export default async function TargetPracticePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">
+      <div className="animate-slide-up">
+        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
           {target.surah.nameTransliteration} {target.ayahStart}-{target.ayahEnd}
         </h1>
-        <p className="text-sm text-neutral-500">
+        <p className="mt-0.5 text-sm text-neutral-500">
           Hafalkan ayat berikut, lalu tandai sudah hafal untuk membuka target berikutnya.
         </p>
       </div>
 
       {target.status !== "HAFAL" && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+        <div className="animate-slide-up flex items-center gap-2.5 rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800/50 dark:bg-amber-950/60 dark:text-amber-200">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
           Belum hafal sepenuhnya — kamu tidak bisa membuat target baru sampai ini ditandai
           hafal.
         </div>

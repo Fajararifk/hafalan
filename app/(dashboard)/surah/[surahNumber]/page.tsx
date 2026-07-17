@@ -23,14 +23,14 @@ export default async function SurahDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">
+      <div className="animate-slide-up rounded-2xl border border-neutral-200/70 bg-white/70 p-5 shadow-sm dark:border-emerald-900/30 dark:bg-neutral-900/60">
+        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
           {surah.number}. {surah.nameTransliteration}
         </h1>
-        <p dir="rtl" lang="ar" className="font-arabic text-2xl text-neutral-700 dark:text-neutral-300">
+        <p dir="rtl" lang="ar" className="font-arabic mt-1 text-2xl text-emerald-700 dark:text-emerald-400">
           {surah.nameArabic}
         </p>
-        <p className="text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-neutral-500">
           {surah.nameTranslationId} &middot; {surah.ayahCount} ayat
         </p>
       </div>
