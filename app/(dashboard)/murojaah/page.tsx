@@ -2,7 +2,6 @@ import { RotateCcw } from "lucide-react";
 import { requireUserId } from "@/lib/session";
 import { getMemorizedAyat } from "@/lib/queries/progress";
 import { AyahCard } from "@/components/ayah/AyahCard";
-import { QuizPractice } from "@/components/ayah/QuizPractice";
 import { MarkReviewButton } from "@/components/ayah/MarkReviewButton";
 
 export default async function MurojaahPage() {
@@ -46,7 +45,6 @@ export default async function MurojaahPage() {
               status="HAFAL"
             >
               <MarkReviewButton ayahId={ayah.id} />
-              <QuizPractice ayahId={ayah.id} />
             </AyahCard>
           ))}
         </div>

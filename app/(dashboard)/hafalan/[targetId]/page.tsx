@@ -3,7 +3,6 @@ import { AlertTriangle } from "lucide-react";
 import { requireUserId } from "@/lib/session";
 import { getTargetWithAyat } from "@/lib/queries/targets";
 import { AyahCard } from "@/components/ayah/AyahCard";
-import { QuizPractice } from "@/components/ayah/QuizPractice";
 import { MarkHafalButton } from "@/components/targets/MarkHafalButton";
 
 export default async function TargetPracticePage({
@@ -45,9 +44,7 @@ export default async function TargetPracticePage({
             ayahNumber={ayah.ayahNumber}
             textUthmani={ayah.textUthmani}
             status={ayah.progress[0]?.status ?? "NOT_STARTED"}
-          >
-            <QuizPractice ayahId={ayah.id} />
-          </AyahCard>
+          />
         ))}
       </div>
 
