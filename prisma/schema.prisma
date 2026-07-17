@@ -1,0 +1,174 @@
+// Prisma schema — see prisma.config.ts for datasource URL (CLI) and lib/prisma.ts (runtime).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Auth.js ----------
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+
+  accounts            Account[]
+  sessions            Session[]
+  ayahProgress        AyahProgress[]
+  memorizationTargets MemorizationTarget[]
+  quizAttempts        QuizAttempt[]
+  dailyActivity       UserDailyActivity[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Quran reference data (seeded once by scripts/ingest-quran.ts, never hand-typed) ----------
+model Surah {
+  number              Int    @id
+  nameArabic          String
+  nameTransliteration String
+  nameTranslationId   String
+  revelationPlace     String
+  ayahCount           Int
+
+  ayat    Ayah[]
+  targets MemorizationTarget[]
+}
+
+model Ayah {
+  id           String @id @default(cuid())
+  surahNumber  Int
+  ayahNumber   Int
+  globalNumber Int    @unique
+  textUthmani  String @db.Text
+  juzNumber    Int
+  pageNumber   Int
+
+  surah        Surah          @relation(fields: [surahNumber], references: [number])
+  progress     AyahProgress[]
+  quizAttempts QuizAttempt[]
+
+  @@unique([surahNumber, ayahNumber])
+  @@index([juzNumber])
+}
+
+// Audit trail proving where the Quran text came from and that it was cross-validated
+model QuranSourceMeta {
+  id         String   @id @default(cuid())
+  sourceName String
+  fetchedAt  DateTime @default(now())
+  checksum   String
+  verseCount Int
+  verified   Boolean  @default(false)
+  notes      String?  @db.Text
+}
+
+// ---------- Per-user progress ----------
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  HAFAL
+}
+
+model AyahProgress {
+  id             String         @id @default(cuid())
+  userId         String
+  ayahId         String
+  status         ProgressStatus @default(NOT_STARTED)
+  firstStudiedAt DateTime?
+  hafalAt        DateTime?
+  lastRevisedAt  DateTime?
+  revisionCount  Int            @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ayah Ayah @relation(fields: [ayahId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ayahId])
+  @@index([userId, status])
+}
+
+model MemorizationTarget {
+  id            String         @id @default(cuid())
+  userId        String
+  sequenceIndex Int
+  surahNumber   Int
+  ayahStart     Int
+  ayahEnd       Int
+  status        ProgressStatus @default(NOT_STARTED)
+  createdAt     DateTime       @default(now())
+  startedAt     DateTime?
+  hafalAt       DateTime?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  surah Surah @relation(fields: [surahNumber], references: [number])
+
+  @@unique([userId, sequenceIndex])
+  @@index([userId, status])
+}
+
+model QuizAttempt {
+  id           String   @id @default(cuid())
+  userId       String
+  ayahId       String
+  mode         String
+  rawInput     String   @db.Text
+  scorePercent Float
+  diffJson     Json
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ayah Ayah @relation(fields: [ayahId], references: [id], onDelete: Cascade)
+
+  @@index([userId, ayahId])
+}
+
+model UserDailyActivity {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime @db.Date
+  ayahsReviewed  Int      @default(0)
+  ayahsMemorized Int      @default(0)
+  quizAttempts   Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
