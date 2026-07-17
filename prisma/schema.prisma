@@ -141,6 +141,7 @@ model MemorizationTarget {
   surah Surah @relation(fields: [surahNumber], references: [number])
 
   @@unique([userId, sequenceIndex])
+  @@unique([userId, surahNumber, ayahStart, ayahEnd])
   @@index([userId, status])
 }
 

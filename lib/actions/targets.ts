@@ -70,6 +70,22 @@ export async function createMemorizationTarget(input: {
   }
 
   const target = await prisma.$transaction(async (tx) => {
+    const duplicate = await tx.memorizationTarget.findUnique({
+      where: {
+        userId_surahNumber_ayahStart_ayahEnd: {
+          userId,
+          surahNumber: input.surahNumber,
+          ayahStart: input.ayahStart,
+          ayahEnd: input.ayahEnd,
+        },
+      },
+    });
+    if (duplicate) {
+      throw new GatingError(
+        `Target ${surah.nameTransliteration} ayat ${input.ayahStart}-${input.ayahEnd} sudah pernah dibuat sebelumnya.`
+      );
+    }
+
     const last = await tx.memorizationTarget.findFirst({
       where: { userId },
       orderBy: { sequenceIndex: "desc" },
