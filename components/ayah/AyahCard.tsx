@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Circle } from "lucide-react";
 import type { ProgressStatus } from "@/app/generated/prisma/client";
+import { AyahTextDisplay } from "./AyahTextDisplay";
 
 const STATUS_LABEL: Record<ProgressStatus, string> = {
   NOT_STARTED: "Belum mulai",
@@ -27,11 +28,13 @@ const STATUS_BORDER: Record<ProgressStatus, string> = {
 };
 
 export function AyahCard({
+  ayahId,
   ayahNumber,
   textUthmani,
   status,
   children,
 }: {
+  ayahId: string;
   ayahNumber: number;
   textUthmani: string;
   status: ProgressStatus;
@@ -54,9 +57,7 @@ export function AyahCard({
           {STATUS_LABEL[status]}
         </span>
       </div>
-      <p dir="rtl" lang="ar" className="font-arabic text-3xl leading-loose text-neutral-900 dark:text-neutral-50">
-        {textUthmani}
-      </p>
+      <AyahTextDisplay ayahId={ayahId} textUthmani={textUthmani} />
       {children}
     </div>
   );

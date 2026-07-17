@@ -40,6 +40,7 @@ export default async function MurojaahPage() {
           {surahAyat.map((ayah) => (
             <AyahCard
               key={ayah.id}
+              ayahId={ayah.id}
               ayahNumber={ayah.ayahNumber}
               textUthmani={ayah.textUthmani}
               status="HAFAL"

@@ -41,6 +41,7 @@ export default async function TargetPracticePage({
         {ayat.map((ayah) => (
           <AyahCard
             key={ayah.id}
+            ayahId={ayah.id}
             ayahNumber={ayah.ayahNumber}
             textUthmani={ayah.textUthmani}
             status={ayah.progress[0]?.status ?? "NOT_STARTED"}
